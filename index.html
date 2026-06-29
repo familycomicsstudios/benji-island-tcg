@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Super Benji TCG Card Search</title>
+
+<style>
+
+body{
+    margin:40px;
+    background:#1b1b1b;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+h1{
+    text-align:center;
+}
+
+#searchArea{
+    display:flex;
+    gap:10px;
+    margin:30px auto;
+    max-width:900px;
+}
+
+#search{
+    flex:1;
+    padding:12px;
+    font-size:18px;
+}
+
+button{
+    padding:12px 20px;
+    font-size:18px;
+    cursor:pointer;
+}
+
+#results{
+    margin-top:30px;
+
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:20px;
+}
+
+.card{
+
+    background:#2a2a2a;
+
+    border-radius:10px;
+
+    padding:10px;
+
+    display:flex;
+    flex-direction:column;
+}
+
+.card img{
+
+    width:100%;
+
+    border-radius:8px;
+
+    margin-bottom:10px;
+
+}
+
+.card h2{
+
+    margin:0;
+
+    font-size:20px;
+
+}
+
+.meta{
+
+    color:#aaa;
+
+    margin:5px 0 10px;
+
+}
+
+.rules{
+
+    white-space:pre-wrap;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Benji Island - Super Benji TCG Card Search</h1>
+
+<div id="searchArea">
+
+<input
+id="search"
+placeholder='Examples: benji set:bs26 hero (set:bs26 OR set:bs27) rarity:uncommon -text:fire'>
+
+<button id="go">
+Search
+</button>
+
+</div>
+
+<div id="results"></div>
+
+<script src="search.js"></script>
+
+</body>
+</html>
