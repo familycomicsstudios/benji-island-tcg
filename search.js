@@ -33,7 +33,7 @@ async function loadSet(setName){
 function tokenize(query){
 
     const regex =
-        /"([^"]*)"|\(|\)|\bAND\b|\bOR\b|\bNOT\b|[^\s()]+/gi;
+        /[A-Za-z]+:"[^"]*"|"[^"]*"|\(|\)|\bAND\b|\bOR\b|\bNOT\b|[^\s()]+/gi;
 
     const tokens=[];
 
@@ -61,8 +61,15 @@ function parse(query){
 
     for(const token of tokens){
 
-        if(token==="("||token===")")
+        if (token === "(") {
+            terms.push({ type: "(" });
             continue;
+        }
+
+        if (token === ")") {
+            terms.push({ type: ")" });
+            continue;
+        }
 
         if(token.toUpperCase()==="AND"){
             terms.push({
@@ -99,7 +106,7 @@ function parse(query){
 
         if(t.includes(":")){
 
-            const split=t.split(":");
+            const split = t.split(/:(.+)/);
 
             terms.push({
 
@@ -107,7 +114,7 @@ function parse(query){
 
                 field:split[0].toLowerCase(),
 
-                value:split.slice(1).join(":"),
+                value: split[1].replace(/^"|"$/g, ""),
 
                 negate
 
@@ -131,7 +138,34 @@ function parse(query){
 
     }
 
-    return terms;
+    const output = [];
+
+    for (let i = 0; i < terms.length; i++) {
+
+        output.push(terms[i]);
+
+        const a = terms[i];
+        const b = terms[i + 1];
+
+        if (!b) continue;
+
+        const left =
+            a.type === "TEXT" ||
+            a.type === "FIELD" ||
+            a.type === ")";
+
+        const right =
+            b.type === "TEXT" ||
+            b.type === "FIELD" ||
+            b.type === "(" ||
+            b.type === "NOT";
+
+        if (left && right) {
+            output.push({ type: "AND" });
+        }
+    }
+
+    return output;
 
 }
 
@@ -149,6 +183,8 @@ function contains(text,value){
 
 function evaluate(card, terms) {
 
+    let index = 0;
+
     function evaluateTerm(term) {
 
         let result = false;
@@ -161,7 +197,9 @@ function evaluate(card, terms) {
                 contains(card.cardtype, term.value) ||
                 contains(card["set name"], term.value);
 
-        } else if (term.type === "FIELD") {
+        }
+
+        else if (term.type === "FIELD") {
 
             switch (term.field) {
 
@@ -192,6 +230,7 @@ function evaluate(card, terms) {
                     result = contains(card.id, term.value);
                     break;
             }
+
         }
 
         if (term.negate)
@@ -200,85 +239,64 @@ function evaluate(card, terms) {
         return result;
     }
 
-    function parseExpression(index = 0) {
+    function parsePrimary() {
 
-        let result = null;
-        let op = "AND";
-        let negate = false;
+        const term = terms[index++];
 
-        while (index < terms.length) {
+        if (!term)
+            return true;
 
-            const term = terms[index];
+        if (term.type === "(") {
 
-            if (term.type === "(") {
-                const sub = parseExpression(index + 1);
-                let value = sub.result;
-                index = sub.index;
+            const value = parseOr();
 
-                if (negate) {
-                    value = !value;
-                    negate = false;
-                }
+            index++; // skip ')'
 
-                if (result === null)
-                    result = value;
-                else if (op === "AND")
-                    result = result && value;
-                else
-                    result = result || value;
+            return value;
 
-                continue;
-            }
-
-            if (term.type === ")") {
-                return {
-                    result: result ?? true,
-                    index: index + 1
-                };
-            }
-
-            if (term.type === "AND") {
-                op = "AND";
-                index++;
-                continue;
-            }
-
-            if (term.type === "OR") {
-                op = "OR";
-                index++;
-                continue;
-            }
-
-            if (term.type === "NOT") {
-                negate = true;
-                index++;
-                continue;
-            }
-
-            let value = evaluateTerm(term);
-
-            if (negate) {
-                value = !value;
-                negate = false;
-            }
-
-            if (result === null)
-                result = value;
-            else if (op === "AND")
-                result = result && value;
-            else
-                result = result || value;
-
-            index++;
         }
 
-        return {
-            result: result ?? true,
-            index
-        };
+        if (term.type === "NOT")
+            return !parsePrimary();
+
+        return evaluateTerm(term);
+
     }
 
-    return parseExpression().result;
+    function parseAnd() {
+
+        let value = parsePrimary();
+
+        while (terms[index]?.type === "AND") {
+
+            index++;
+
+            value = value && parsePrimary();
+
+        }
+
+        return value;
+
+    }
+
+    function parseOr() {
+
+        let value = parseAnd();
+
+        while (terms[index]?.type === "OR") {
+
+            index++;
+
+            value = value || parseAnd();
+
+        }
+
+        return value;
+
+    }
+
+    return parseOr();
+
 }
 
 //////////////////////////////////////////////////////////
@@ -349,17 +367,19 @@ async function performSearch(){
 
     let sets=[];
 
-    const setSearch =
-        parsed.find(t=>
-            t.field==="set"||
-            t.field==="s"
-        );
+    const setTerms = parsed.filter(
+        t =>
+            t.type === "FIELD" &&
+            (t.field === "set" || t.field === "s")
+    );
 
-    if(setSearch){
+    if (setTerms.length) {
 
-        sets.push(
-            setSearch.value.toLowerCase()
-        );
+        sets = [
+            ...new Set(
+                setTerms.map(t => t.value.toLowerCase())
+            )
+        ];
 
     }
 
