@@ -18,6 +18,10 @@ function formatCardText(text) {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
 
+    // Allow lists
+    text = text
+        .replace(/&lt;(\/?(?:ul|ol|li))&gt;/gi, "<$1>");
+
     text = text.replace(
         /\{icons\/([^}]+)\}/g,
         (_, file) =>
@@ -30,6 +34,8 @@ function formatCardText(text) {
     text = text.replace(/~~(.+?)~~/g, "<del>$1</del>");
 
     text = text.replaceAll(" / ", "<br>");
+
+    text = text.replaceAll("---", "<hr>");
 
     return text;
 }
