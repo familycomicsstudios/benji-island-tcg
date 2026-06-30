@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" href="style.css">
+
+        <title>Super Benji TCG Card Database - Search Help</title>
+    </head>
+    <body>
+        <div class="description">
+            
+        <h1>Card Search Documentation</h1>
+
+        <p>
+        The search bar supports searching across all card fields, specific fields,
+        logical operators, grouping, exact matching, and negation.
+        </p>
+
+        <p><a href="index.html">Back to Card Database</a></p>
+
+        <hr>
+
+        <h2>Basic Search</h2>
+
+        <p>
+        Searching for a word searches the card name, rules text, card type, and set name.
+        </p>
+
+        <table>
+        <tr><th>Query</th><th>Description</th></tr>
+        <tr><td><code>Fireball</code></td><td>Finds cards containing "Fireball".</td></tr>
+        <tr><td><code>Hero</code></td><td>Finds cards containing "Hero".</td></tr>
+        <tr><td><code>"Draw 2 cards"</code></td><td>Searches for the entire phrase.</td></tr>
+        </table>
+
+        <hr>
+
+        <h2>Field Searches</h2>
+
+        <p>
+        Search only a specific field using <code>field:value</code>.
+        </p>
+
+        <table>
+        <tr><th>Field</th><th>Alias</th><th>Description</th></tr>
+        <tr><td><code>name</code></td><td>-</td><td>Card name.</td></tr>
+        <tr><td><code>text</code></td><td>-</td><td>Rules text.</td></tr>
+        <tr><td><code>type</code></td><td><code>t</code></td><td>Card type.</td></tr>
+        <tr><td><code>set</code></td><td><code>s</code></td><td>Set name.</td></tr>
+        <tr><td><code>rarity</code></td><td><code>r</code></td><td>Card rarity.</td></tr>
+        <tr><td><code>id</code></td><td>-</td><td>Card ID.</td></tr>
+        </table>
+
+        <h3>Examples</h3>
+
+        <pre>
+        name:Benji
+        text:damage
+        type:Character
+        t:Hero
+        set:Base
+        s:BS26
+        rarity:Rare
+        r:Common
+        id:BS26-001
+        </pre>
+
+        <hr>
+
+        <h2>Exact Matches</h2>
+
+        <p>
+        Use single quotes to require an exact match instead of a partial match.
+        </p>
+
+        <table>
+        <tr><th>Query</th><th>Meaning</th></tr>
+        <tr>
+        <td><code>rarity:Rare</code></td>
+        <td>Matches "Rare", "Rare Foil", etc.</td>
+        </tr>
+
+        <tr>
+        <td><code>rarity:'Rare'</code></td>
+        <td>Matches only exactly "Rare".</td>
+        </tr>
+
+        <tr>
+        <td><code>name:'Benji'</code></td>
+        <td>Card name must be exactly "Benji".</td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <h2>Phrase Searches</h2>
+
+        <p>
+        Double quotes keep multiple words together as one search term.
+        </p>
+
+        <pre>
+        "Draw 2 cards"
+
+        name:"Dark Mage"
+
+        text:"Deal 3 damage"
+        </pre>
+
+        <hr>
+
+        <h2>Negation</h2>
+
+        <p>
+        Exclude cards using <code>NOT</code> or a leading <code>-</code>.
+        </p>
+
+        <table>
+        <tr><th>Query</th><th>Description</th></tr>
+
+        <tr>
+        <td><code>NOT rarity:Common</code></td>
+        <td>Exclude Common cards.</td>
+        </tr>
+
+        <tr>
+        <td><code>-rarity:Common</code></td>
+        <td>Same as above.</td>
+        </tr>
+
+        <tr>
+        <td><code>Hero -text:Flying</code></td>
+        <td>Hero cards without "Flying".</td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <h2>AND</h2>
+
+        <p>
+        Both conditions must match.
+        </p>
+
+        <pre>
+        Hero AND Rare
+
+        type:Character AND rarity:Rare
+
+        Hero Rare
+        </pre>
+
+        <p>
+        Adjacent terms automatically imply <code>AND</code>.
+        </p>
+
+        <hr>
+
+        <h2>OR</h2>
+
+        <p>
+        Either condition may match.
+        </p>
+
+        <pre>
+        Rare OR Legendary
+
+        type:Hero OR type:Villain
+        </pre>
+
+        <hr>
+
+        <h2>Parentheses</h2>
+
+        <p>
+        Use parentheses to group expressions.
+        </p>
+
+        <pre>
+        (Hero OR Villain) AND Rare
+
+        (type:Character OR type:Item)
+        AND
+        NOT rarity:Common
+        </pre>
+
+        <hr>
+
+        <h2>Operator Precedence</h2>
+
+        <p>
+        Operators are evaluated in this order:
+        </p>
+
+        <ol>
+        <li>Parentheses <code>( )</code></li>
+        <li><code>NOT</code></li>
+        <li><code>AND</code></li>
+        <li><code>OR</code></li>
+        </ol>
+
+        <p>
+        Example:
+        </p>
+
+        <pre>
+        Hero OR Villain AND Rare
+        </pre>
+
+        <p>
+        is interpreted as:
+        </p>
+
+        <pre>
+        Hero OR (Villain AND Rare)
+        </pre>
+
+        <hr>
+
+        <h2>Examples</h2>
+
+        <pre>
+        Hero
+
+        Hero Rare
+
+        Hero AND Rare
+
+        Hero OR Villain
+
+        (Hero OR Villain) Rare
+
+        name:Benji
+
+        name:'Benji'
+
+        text:"Deal 2 damage"
+
+        set:BS26
+
+        rarity:Rare
+
+        rarity:'Rare'
+
+        NOT rarity:Common
+
+        -rarity:Common
+
+        (type:Character OR type:Item) AND rarity:Rare
+        </pre>
+        </div>
+    </body>
+</html>

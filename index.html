@@ -1,126 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Super Benji TCG Card Database</title>
+        <title>Super Benji TCG Card Database</title>
 
-<style>
+        <link rel="stylesheet" href="style.css">
 
-body{
-    margin:40px;
-    background:#1b1b1b;
-    color:white;
-    font-family:Arial,Helvetica,sans-serif;
-}
+    </head>
 
-h1{
-    text-align:center;
-}
+    <body>
 
-#searchArea{
-    display:flex;
-    gap:10px;
-    margin:30px auto;
-    max-width:900px;
-}
+        <h1>Benji Island - Super Benji TCG Card Database</h1>
+        
+        <div class="description">
+            <p>
+                This website is a full card database for the Super Benji Trading Card Game. You can search for cards, view card details, 
+                and explore the card sets.
+            </p>
 
-#search{
-    flex:1;
-    padding:12px;
-    font-size:18px;
-}
+            <p><small>Search Help: <a href="searchhelp.html">Click Here</a></small></p>
+        
+        </div>
 
-button{
-    padding:12px 20px;
-    font-size:18px;
-    cursor:pointer;
-}
+        <div id="searchArea">
 
-#results{
-    margin-top:30px;
+        <input
+        id="search"
+        placeholder='Examples: benji set:bs26 hero (set:bs26 OR set:bs27) rarity:uncommon -text:fire'>
 
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-    gap:20px;
-}
+        <button id="go">
+        Search
+        </button>
 
-.card{
+        </div>
 
-    background:#2a2a2a;
+        <div id="results"></div>
 
-    border-radius:10px;
+        <script src="search.js"></script>
 
-    padding:10px;
-
-    display:flex;
-    flex-direction:column;
-}
-
-.card > img{
-
-    width:100%;
-
-    border-radius:8px;
-
-    margin-bottom:10px;
-
-}
-
-.card h2{
-
-    margin:0;
-
-    font-size:20px;
-
-}
-
-.meta{
-
-    color:#aaa;
-
-    margin:5px 0 10px;
-
-}
-
-.rules{
-
-    white-space:pre-wrap;
-
-}
-
-.inline-icon {
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    vertical-align: -0.15em;
-    object-fit: contain;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<h1>Benji Island - Super Benji TCG Card Database</h1>
-
-<div id="searchArea">
-
-<input
-id="search"
-placeholder='Examples: benji set:bs26 hero (set:bs26 OR set:bs27) rarity:uncommon -text:fire'>
-
-<button id="go">
-Search
-</button>
-
-</div>
-
-<div id="results"></div>
-
-<script src="search.js"></script>
-
-</body>
+    </body>
 </html>
