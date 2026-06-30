@@ -58,18 +58,14 @@ async function loadSet(setName){
 function tokenize(query){
 
     const regex =
-        /[A-Za-z]+:"[^"]*"|"[^"]*"|\(|\)|\bAND\b|\bOR\b|\bNOT\b|[^\s()]+/gi;
+        /"[^"]*"|'[^']*'|\(|\)|\bAND\b|\bOR\b|\bNOT\b|[^\s()]+/gi;
 
-    const tokens=[];
+    const tokens = [];
 
     let m;
 
-    while((m=regex.exec(query))!==null){
-
-        tokens.push(
-            m[1] ?? m[0]
-        );
-
+    while ((m = regex.exec(query)) !== null) {
+        tokens.push(m[0]);
     }
 
     return tokens;
@@ -133,30 +129,58 @@ function parse(query){
 
             const split = t.split(/:(.+)/);
 
+            let value = split[1];
+            let exact = false;
+
+            if (
+                value.startsWith("'") &&
+                value.endsWith("'")
+            ) {
+                exact = true;
+                value = value.slice(1, -1);
+            }
+
+            if (
+                value.startsWith('"') &&
+                value.endsWith('"')
+            ) {
+                value = value.slice(1, -1);
+            }
+
             terms.push({
-
-                type:"FIELD",
-
-                field:split[0].toLowerCase(),
-
-                value: split[1].replace(/^"|"$/g, ""),
-
+                type: "FIELD",
+                field: split[0].toLowerCase(),
+                value,
+                exact,
                 negate
-
             });
 
         }
 
         else{
 
+            let exact = false;
+
+            if (
+                t.startsWith("'") &&
+                t.endsWith("'")
+            ) {
+                exact = true;
+                t = t.slice(1, -1);
+            }
+
+            if (
+                t.startsWith('"') &&
+                t.endsWith('"')
+            ) {
+                t = t.slice(1, -1);
+            }
+
             terms.push({
-
-                type:"TEXT",
-
-                value:t,
-
+                type: "TEXT",
+                value: t,
+                exact,
                 negate
-
             });
 
         }
@@ -204,6 +228,13 @@ function contains(text,value){
 
 }
 
+function equals(text, value) {
+
+    return (text || "")
+        .toLowerCase() === value.toLowerCase();
+
+}
+
 //////////////////////////////////////////////////////////
 
 function evaluate(card, terms) {
@@ -229,30 +260,41 @@ function evaluate(card, terms) {
             switch (term.field) {
 
                 case "name":
-                    result = contains(card.cardname, term.value);
+                    result = term.exact
+                        ? equals(card.name, term.value)
+                        : contains(card.name, term.value);
                     break;
 
                 case "text":
-                    result = contains(card.cardtext, term.value);
+                    result = term.exact
+                        ? equals(card.cardtext, term.value)
+                        : contains(card.cardtext, term.value);
                     break;
 
                 case "type":
                 case "t":
-                    result = contains(card.cardtype, term.value);
+                    result = term.exact
+                        ? equals(card.type, term.value)
+                        : contains(card.type, term.value);
                     break;
 
                 case "set":
                 case "s":
-                    result = contains(card["set name"], term.value);
-                    break;
+                    result = term.exact
+                        ? equals(card["set name"], term.value)
+                        : contains(card["set name"], term.value);
 
                 case "rarity":
                 case "r":
-                    result = contains(card.rarity, term.value);
+                    result = term.exact
+                        ? equals(card.rarity, term.value)
+                        : contains(card.rarity, term.value);
                     break;
 
                 case "id":
-                    result = contains(card.id, term.value);
+                    result = term.exact
+                        ? equals(card.id, term.value)
+                        : contains(card.id, term.value);
                     break;
             }
 
