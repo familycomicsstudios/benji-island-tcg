@@ -11,6 +11,31 @@ document.getElementById("search").addEventListener("keydown", e=>{
 
 //////////////////////////////////////////////////////////
 
+function formatCardText(text) {
+
+    text = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    text = text.replace(
+        /\{icons\/([^}]+)\}/g,
+        (_, file) =>
+            `<img class="inline-icon" src="icons/${file}" alt="">`
+    );
+
+    text = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    text = text.replace(/\*(.+?)\*/g, "<em>$1</em>");
+    text = text.replace(/__(.+?)__/g, "<u>$1</u>");
+    text = text.replace(/~~(.+?)~~/g, "<del>$1</del>");
+
+    text = text.replaceAll(" / ", "<br>");
+
+    return text;
+}
+
+//////////////////////////////////////////////////////////
+
 async function loadSet(setName){
 
     setName = setName.toLowerCase();
@@ -336,7 +361,7 @@ ${card.rarity}
 
 <div class="rules">
 
-${card.cardtext}
+${formatCardText(card.cardtext)}
 
 </div>
 
