@@ -267,8 +267,8 @@ function evaluate(card, terms) {
 
                 case "name":
                     result = term.exact
-                        ? equals(card.name, term.value)
-                        : contains(card.name, term.value);
+                        ? equals(card.cardname, term.value)
+                        : contains(card.cardname, term.value);
                     break;
 
                 case "text":
@@ -280,8 +280,8 @@ function evaluate(card, terms) {
                 case "type":
                 case "t":
                     result = term.exact
-                        ? equals(card.type, term.value)
-                        : contains(card.type, term.value);
+                        ? equals(card.cardtype, term.value)
+                        : contains(card.cardtype, term.value);
                     break;
 
                 case "set":
