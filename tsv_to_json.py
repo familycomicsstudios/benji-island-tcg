@@ -19,6 +19,9 @@ with open(INPUT_FILE, "r", encoding="utf-8-sig", newline="") as tsv_file:
 
         cleaned_row["id"] = cleaned_row["set name"].lower() + "/" + str(reader.index(row)).zfill(2)
 
+        if not cleaned_row.get("rarity", "").strip():
+            cleaned_row["rarity"] = "Common"
+
         # Convert Copies to an integer if possible
         if cleaned_row.get("Copies", "").isdigit():
             cleaned_row["Copies"] = int(cleaned_row["Copies"])

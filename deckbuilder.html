@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Super Benji TCG Deck Builder</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="page-header">
+      <h1>Super Benji TCG Deck Builder</h1>
+      <p class="description">
+        Build, import, and export decks while checking them against the current rules.
+      </p>
+      <nav class="nav-links">
+        <a href="index.html">Card Database</a>
+        <a href="rules.html">Rules</a>
+      </nav>
+    </header>
+
+    <main class="builder-shell">
+      <section class="builder-panel">
+        <div class="builder-toolbar">
+          <input id="cardSearch" type="search" placeholder="Search cards by name or text" />
+          <select id="setFilter">
+            <option value="all">All sets</option>
+          </select>
+        </div>
+
+        <div class="builder-toolbar builder-toolbar--secondary">
+          <button id="newDeck" type="button">New Deck</button>
+          <button id="toggleImport" type="button">Import Deck</button>
+          <button id="copyExport" type="button">Copy Name Export</button>
+        </div>
+
+        <div id="importPanel" class="import-panel hidden">
+          <label for="importText">Import lines like 2 x Benji, Hero of Benji Island</label>
+          <textarea id="importText" rows="8" spellcheck="false"></textarea>
+          <div class="import-actions">
+            <button id="applyImport" type="button">Import</button>
+            <button id="cancelImport" type="button">Cancel</button>
+          </div>
+          <div id="importStatus" class="import-status"></div>
+        </div>
+
+        <div id="availableCards" class="card-list"></div>
+      </section>
+
+      <aside class="builder-panel deck-panel">
+        <div class="deck-header">
+          <div>
+            <h2>Deck Builder</h2>
+            <p class="deck-subtitle">Cards can be added in any count. The issues list always shows what is illegal.</p>
+          </div>
+        </div>
+
+        <div class="deck-name-row">
+          <label for="deckNameInput">Deck Name</label>
+          <input id="deckNameInput" type="text" value="Untitled Deck" />
+        </div>
+
+        <div id="deckIssues" class="issues-panel"></div>
+        <div id="deckSummary" class="deck-summary"></div>
+
+        <textarea id="deckInput" class="deck-textarea" rows="8" readonly spellcheck="false"></textarea>
+
+        <div id="deckList" class="deck-list"></div>
+
+        <div class="export-block">
+          <label for="exportSet">Set/Card export</label>
+          <textarea id="exportSet" class="deck-textarea" rows="6" readonly spellcheck="false"></textarea>
+        </div>
+
+        <div class="export-block">
+          <label for="exportNames">Card name export</label>
+          <textarea id="exportNames" class="deck-textarea" rows="6" readonly spellcheck="false"></textarea>
+        </div>
+      </aside>
+    </main>
+
+    <script src="search.js"></script>
+    <script src="deckbuilder.js"></script>
+  </body>
+</html>

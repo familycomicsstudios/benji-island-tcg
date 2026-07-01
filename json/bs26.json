@@ -113,7 +113,7 @@
         "cardimage": "Zach.png",
         "cardimage style": "",
         "cardtype": "Unique Character - Human Hero",
-        "cardtext": "Actions: {icons/QuestionAction.png} {icons/PlusAction.png} / {icons/MinusAction.png} {icons/QuestionAction.png}: *Hard as Rock* - Target character gains +0/+3 until end of turn. 3/4",
+        "cardtext": "Actions: {icons/QuestionAction.png} {icons/PlusAction.png} {icons/MinusAction.png} / {icons/QuestionAction.png}: *Hard as Rock* - Target character gains +0/+3 until end of turn. 3/4",
         "card number": "8",
         "set name": "BS26",
         "rarity": "Uncommon",
@@ -128,7 +128,7 @@
         "cardimage": "Jack.png",
         "cardimage style": "",
         "cardtype": "Unique Character - Human Hero",
-        "cardtext": "Actions: {icons/QuestionAction.png} {icons/MinusAction.png} / {icons/PlusAction.png} {icons/QuestionAction.png}: *Zap* - Deal this character's Attack as damage to target character. Exhaust this card. 4/2",
+        "cardtext": "Actions: {icons/QuestionAction.png} {icons/MinusAction.png} {icons/PlusAction.png} / {icons/QuestionAction.png}: *Zap* - Deal this character's Attack as damage to target character. Exhaust this card. 4/2",
         "card number": "9",
         "set name": "BS26",
         "rarity": "Uncommon",
@@ -191,7 +191,7 @@
         "cardtext": "{icons/WildAction.png} {icons/WildAction.png} {icons/WildAction.png}: Deal 5 damage to target character.",
         "card number": "13",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/12"
     },
     {
@@ -206,7 +206,7 @@
         "cardtext": "Actions: {icons/HAction.png} {icons/WildAction.png} / All characters you control gain Reach and Speed until end of turn. /",
         "card number": "14",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/13"
     },
     {
@@ -221,7 +221,7 @@
         "cardtext": "Pick either:<ul><li>Draw 2 cards</li><li>Add {icons/VAction.png}{icons/VAction.png}{icons/VAction.png} to your action pool</li></ul>",
         "card number": "15",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/14"
     },
     {
@@ -236,7 +236,7 @@
         "cardtext": "Actions: {icons/QuestionAction.png} {icons/WildAction.png} {icons/WildAction.png} / *Fighting With Style* - Whenever Scarlette attacks, add a +1/+1 counter to this character. / 4/2",
         "card number": "16",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/15"
     },
     {
@@ -281,7 +281,7 @@
         "cardtext": "Create a Food token. *(It's a Token with this card text: \"Destroy this card: Gain 2 life\".)*",
         "card number": "19",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/18"
     },
     {
@@ -296,7 +296,7 @@
         "cardtext": "Select a character you control. That character gains Flying while this card remains in play.",
         "card number": "20",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/19"
     },
     {
@@ -326,7 +326,7 @@
         "cardtext": "Search your deck for a character with the Hero keyword and put it into your hand. Then, shuffle your deck.",
         "card number": "22",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/21"
     },
     {
@@ -341,7 +341,7 @@
         "cardtext": "All characters with the Hero keyword gain +1/+1 while this Location is in play.",
         "card number": "23",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/22"
     },
     {
@@ -356,7 +356,7 @@
         "cardtext": "All characters with the Villain keyword gain +1/+1 while this Location is in play.",
         "card number": "24",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/23"
     },
     {
@@ -371,7 +371,7 @@
         "cardtext": "At the start of your turn, add {icons/QuestionAction.png} to your action pool for every non-Token character in play you control that isn't a Villain.",
         "card number": "25",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/24"
     },
     {
@@ -386,7 +386,7 @@
         "cardtext": "Create 2 1/1 Token Character - Humans with Speed.",
         "card number": "26",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/25"
     },
     {
@@ -401,7 +401,7 @@
         "cardtext": "Actions: {icons/WildAction.png} / When a card with the Banana keyword is played, put a +1/+1 counter on this character. / 2/1",
         "card number": "27",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/26"
     },
     {
@@ -416,7 +416,7 @@
         "cardtext": "Actions: {icons/QuestionAction.png} / 1/1",
         "card number": "28",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/27"
     },
     {
@@ -566,7 +566,7 @@
         "cardtext": "Target character's card text other than their actions and power/health is removed until the start of your next turn.",
         "card number": "38",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/37"
     },
     {
@@ -581,7 +581,7 @@
         "cardtext": "Target player takes 1 damage for every character they control that is destroyed until end of turn.",
         "card number": "39",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/38"
     },
     {
@@ -596,7 +596,7 @@
         "cardtext": "Create a 1/1 Character - Human token with Speed.",
         "card number": "40",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/39"
     },
     {
@@ -611,7 +611,7 @@
         "cardtext": "Take 2 damage. Gain {icons/WildAction.png} {icons/WildAction.png} {icons/WildAction.png}.",
         "card number": "41",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/40"
     },
     {
@@ -626,7 +626,7 @@
         "cardtext": "Take the top 3 cards of your deck. Put one into your hand, put one on the bottom of your deck, and put one on the top of your deck.",
         "card number": "42",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/41"
     },
     {
@@ -641,7 +641,7 @@
         "cardtext": "When an opponent plays a card from their hand, you may play this card. That card is returned to the top of its owner’s deck instead of resolving.",
         "card number": "43",
         "set name": "BS26",
-        "rarity": "",
+        "rarity": "Common",
         "id": "bs26/42"
     },
     {

@@ -1,485 +1,367 @@
-const loadedSets = new Map();
+(function (root) {
+    const loadedSets = new Map();
 
-const resultsDiv = document.getElementById("results");
-
-document.getElementById("go").onclick = performSearch;
-
-document.getElementById("search").addEventListener("keydown", e=>{
-    if(e.key==="Enter")
-        performSearch();
-});
-
-//////////////////////////////////////////////////////////
-
-function formatCardText(text) {
-
-    text = text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-
-    // Allow lists
-    text = text
-        .replace(/&lt;(\/?(?:ul|ol|li))&gt;/gi, "<$1>");
-
-    text = text.replace(
-        /\{icons\/([^}]+)\}/g,
-        (_, file) =>
-            `<img class="inline-icon" src="icons/${file}" alt="">`
-    );
-
-    text = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-    text = text.replace(/\*(.+?)\*/g, "<em>$1</em>");
-    text = text.replace(/__(.+?)__/g, "<u>$1</u>");
-    text = text.replace(/~~(.+?)~~/g, "<del>$1</del>");
-
-    text = text.replaceAll(" / ", "<br>");
-
-    text = text.replaceAll("---", "<hr>");
-
-    return text;
-}
-
-//////////////////////////////////////////////////////////
-
-async function loadSet(setName){
-
-    setName = setName.toLowerCase();
-
-    if(loadedSets.has(setName))
-        return loadedSets.get(setName);
-
-    const cards =
-        await fetch(`json/${setName}.json`)
-        .then(r=>r.json());
-
-    loadedSets.set(setName,cards);
-
-    return cards;
-
-}
-
-//////////////////////////////////////////////////////////
-
-function tokenize(query){
-
-    const regex =
-        /"[^"]*"|'[^']*'|\(|\)|\bAND\b|\bOR\b|\bNOT\b|[^\s()]+/gi;
-
-    const tokens = [];
-
-    let m;
-
-    while ((m = regex.exec(query)) !== null) {
-        tokens.push(m[0]);
+    function getRarity(card) {
+        return ((card && card.rarity) || "").trim() || "Common";
     }
 
-    return tokens;
+    function formatCardText(text) {
+        text = text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
 
-}
+        text = text
+            .replace(/&lt;(\/?(?:ul|ol|li))&gt;/gi, "<$1>");
 
-//////////////////////////////////////////////////////////
+        text = text.replace(
+            /\{icons\/([^}]+)\}/g,
+            (_, file) => `<img class="inline-icon" src="icons/${file}" alt="">`
+        );
 
-function parse(query){
+        text = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+        text = text.replace(/\*(.+?)\*/g, "<em>$1</em>");
+        text = text.replace(/__(.+?)__/g, "<u>$1</u>");
+        text = text.replace(/~~(.+?)~~/g, "<del>$1</del>");
+        text = text.replaceAll(" / ", "<br>");
+        text = text.replaceAll("---", "<hr>");
 
-    const tokens = tokenize(query);
-
-    const terms=[];
-
-    for(const token of tokens){
-
-        if (token === "(") {
-            terms.push({ type: "(" });
-            continue;
-        }
-
-        if (token === ")") {
-            terms.push({ type: ")" });
-            continue;
-        }
-
-        if(token.toUpperCase()==="AND"){
-            terms.push({
-                type:"AND"
-            });
-            continue;
-        }
-
-        if(token.toUpperCase()==="OR"){
-            terms.push({
-                type:"OR"
-            });
-            continue;
-        }
-
-        if(token.toUpperCase()==="NOT"){
-            terms.push({
-                type:"NOT"
-            });
-            continue;
-        }
-
-        let negate=false;
-
-        let t=token;
-
-        if(t.startsWith("-")){
-
-            negate=true;
-
-            t=t.substring(1);
-
-        }
-
-        if(t.includes(":")){
-
-            const split = t.split(/:(.+)/);
-
-            let value = split[1];
-            let exact = false;
-
-            if (
-                value.startsWith("'") &&
-                value.endsWith("'")
-            ) {
-                exact = true;
-                value = value.slice(1, -1);
-            }
-
-            if (
-                value.startsWith('"') &&
-                value.endsWith('"')
-            ) {
-                value = value.slice(1, -1);
-            }
-
-            terms.push({
-                type: "FIELD",
-                field: split[0].toLowerCase(),
-                value,
-                exact,
-                negate
-            });
-
-        }
-
-        else{
-
-            let exact = false;
-
-            if (
-                t.startsWith("'") &&
-                t.endsWith("'")
-            ) {
-                exact = true;
-                t = t.slice(1, -1);
-            }
-
-            if (
-                t.startsWith('"') &&
-                t.endsWith('"')
-            ) {
-                t = t.slice(1, -1);
-            }
-
-            terms.push({
-                type: "TEXT",
-                value: t,
-                exact,
-                negate
-            });
-
-        }
-
+        return text;
     }
 
-    const output = [];
+    async function loadSet(setName) {
+        const normalizedName = (setName || "").toLowerCase().trim();
 
-    for (let i = 0; i < terms.length; i++) {
-
-        output.push(terms[i]);
-
-        const a = terms[i];
-        const b = terms[i + 1];
-
-        if (!b) continue;
-
-        const left =
-            a.type === "TEXT" ||
-            a.type === "FIELD" ||
-            a.type === ")";
-
-        const right =
-            b.type === "TEXT" ||
-            b.type === "FIELD" ||
-            b.type === "(" ||
-            b.type === "NOT";
-
-        if (left && right) {
-            output.push({ type: "AND" });
+        if (!normalizedName) {
+            return [];
         }
+
+        if (loadedSets.has(normalizedName)) {
+            return loadedSets.get(normalizedName);
+        }
+
+        const response = await fetch(`json/${normalizedName}.json`);
+        if (!response.ok) {
+            throw new Error(`Could not load set ${normalizedName}`);
+        }
+
+        const cards = await response.json();
+        loadedSets.set(normalizedName, cards);
+        return cards;
     }
 
-    return output;
+    function tokenize(query) {
+        const regex = /"[^"]*"|'[^']*'|\(|\)|\bAND\b|\bOR\b|\bNOT\b|[^\s()]+/gi;
+        const tokens = [];
+        let match;
 
-}
-
-//////////////////////////////////////////////////////////
-
-function contains(text,value){
-
-    return (text||"")
-        .toLowerCase()
-        .includes(value.toLowerCase());
-
-}
-
-function equals(text, value) {
-
-    return (text || "")
-        .toLowerCase() === value.toLowerCase();
-
-}
-
-//////////////////////////////////////////////////////////
-
-function evaluate(card, terms) {
-
-    let index = 0;
-
-    function evaluateTerm(term) {
-
-        let result = false;
-
-        if (term.type === "TEXT") {
-
-            result =
-                contains(card.cardname, term.value) ||
-                contains(card.cardtext, term.value) ||
-                contains(card.cardtype, term.value) ||
-                contains(card["set name"], term.value);
-
+        while ((match = regex.exec(query)) !== null) {
+            tokens.push(match[0]);
         }
 
-        else if (term.type === "FIELD") {
+        return tokens;
+    }
 
-            switch (term.field) {
+    function parse(query) {
+        const tokens = tokenize(query || "");
+        const terms = [];
 
-                case "name":
-                    result = term.exact
-                        ? equals(card.cardname, term.value)
-                        : contains(card.cardname, term.value);
-                    break;
-
-                case "text":
-                    result = term.exact
-                        ? equals(card.cardtext, term.value)
-                        : contains(card.cardtext, term.value);
-                    break;
-
-                case "type":
-                case "t":
-                    result = term.exact
-                        ? equals(card.cardtype, term.value)
-                        : contains(card.cardtype, term.value);
-                    break;
-
-                case "set":
-                case "s":
-                    result = term.exact
-                        ? equals(card["set name"], term.value)
-                        : contains(card["set name"], term.value);
-
-                case "rarity":
-                case "r":
-                    result = term.exact
-                        ? equals(card.rarity, term.value)
-                        : contains(card.rarity, term.value);
-                    break;
-
-                case "id":
-                    result = term.exact
-                        ? equals(card.id, term.value)
-                        : contains(card.id, term.value);
-                    break;
+        for (const token of tokens) {
+            if (token === "(") {
+                terms.push({ type: "(" });
+                continue;
             }
 
+            if (token === ")") {
+                terms.push({ type: ")" });
+                continue;
+            }
+
+            if (token.toUpperCase() === "AND") {
+                terms.push({ type: "AND" });
+                continue;
+            }
+
+            if (token.toUpperCase() === "OR") {
+                terms.push({ type: "OR" });
+                continue;
+            }
+
+            if (token.toUpperCase() === "NOT") {
+                terms.push({ type: "NOT" });
+                continue;
+            }
+
+            let negate = false;
+            let value = token;
+
+            if (value.startsWith("-")) {
+                negate = true;
+                value = value.substring(1);
+            }
+
+            if (value.includes(":")) {
+                const split = value.split(/:(.+)/);
+                let fieldValue = split[1];
+                let exact = false;
+
+                if (fieldValue.startsWith("'") && fieldValue.endsWith("'")) {
+                    exact = true;
+                    fieldValue = fieldValue.slice(1, -1);
+                }
+
+                if (fieldValue.startsWith('"') && fieldValue.endsWith('"')) {
+                    fieldValue = fieldValue.slice(1, -1);
+                }
+
+                terms.push({
+                    type: "FIELD",
+                    field: split[0].toLowerCase(),
+                    value: fieldValue,
+                    exact,
+                    negate
+                });
+            } else {
+                let exact = false;
+
+                if (value.startsWith("'") && value.endsWith("'")) {
+                    exact = true;
+                    value = value.slice(1, -1);
+                }
+
+                if (value.startsWith('"') && value.endsWith('"')) {
+                    value = value.slice(1, -1);
+                }
+
+                terms.push({
+                    type: "TEXT",
+                    value,
+                    exact,
+                    negate
+                });
+            }
         }
 
-        if (term.negate)
-            result = !result;
+        const output = [];
 
-        return result;
+        for (let i = 0; i < terms.length; i++) {
+            output.push(terms[i]);
+
+            const current = terms[i];
+            const next = terms[i + 1];
+
+            if (!next) continue;
+
+            const left = current.type === "TEXT" || current.type === "FIELD" || current.type === ")";
+            const right = next.type === "TEXT" || next.type === "FIELD" || next.type === "(" || next.type === "NOT";
+
+            if (left && right) {
+                output.push({ type: "AND" });
+            }
+        }
+
+        return output;
     }
 
-    function parsePrimary() {
+    function contains(text, value) {
+        return (text || "").toLowerCase().includes(value.toLowerCase());
+    }
 
-        const term = terms[index++];
+    function equals(text, value) {
+        return (text || "").toLowerCase() === value.toLowerCase();
+    }
 
-        if (!term)
-            return true;
+    function evaluate(card, terms) {
+        let index = 0;
 
-        if (term.type === "(") {
+        function evaluateTerm(term) {
+            let result = false;
 
-            const value = parseOr();
+            if (term.type === "TEXT") {
+                result =
+                    contains(card.cardname, term.value) ||
+                    contains(card.cardtext, term.value) ||
+                    contains(card.cardtype, term.value) ||
+                    contains(card["set name"], term.value);
+            } else if (term.type === "FIELD") {
+                switch (term.field) {
+                    case "name":
+                        result = term.exact ? equals(card.cardname, term.value) : contains(card.cardname, term.value);
+                        break;
+                    case "text":
+                        result = term.exact ? equals(card.cardtext, term.value) : contains(card.cardtext, term.value);
+                        break;
+                    case "type":
+                    case "t":
+                        result = term.exact ? equals(card.cardtype, term.value) : contains(card.cardtype, term.value);
+                        break;
+                    case "set":
+                    case "s":
+                        result = term.exact ? equals(card["set name"], term.value) : contains(card["set name"], term.value);
+                        break;
+                    case "rarity":
+                    case "r":
+                        result = term.exact ? equals(card.rarity, term.value) : contains(card.rarity, term.value);
+                        break;
+                    case "id":
+                        result = term.exact ? equals(card.id, term.value) : contains(card.id, term.value);
+                        break;
+                }
+            }
 
-            index++; // skip ')'
+            if (term.negate) {
+                result = !result;
+            }
 
+            return result;
+        }
+
+        function parsePrimary() {
+            const term = terms[index++];
+            if (!term) return true;
+            if (term.type === "(") {
+                const value = parseOr();
+                index++;
+                return value;
+            }
+            if (term.type === "NOT") {
+                return !parsePrimary();
+            }
+            return evaluateTerm(term);
+        }
+
+        function parseAnd() {
+            let value = parsePrimary();
+            while (terms[index]?.type === "AND") {
+                index++;
+                value = value && parsePrimary();
+            }
             return value;
-
         }
 
-        if (term.type === "NOT")
-            return !parsePrimary();
-
-        return evaluateTerm(term);
-
-    }
-
-    function parseAnd() {
-
-        let value = parsePrimary();
-
-        while (terms[index]?.type === "AND") {
-
-            index++;
-
-            value = value && parsePrimary();
-
+        function parseOr() {
+            let value = parseAnd();
+            while (terms[index]?.type === "OR") {
+                index++;
+                value = value || parseAnd();
+            }
+            return value;
         }
 
-        return value;
-
+        return parseOr();
     }
 
-    function parseOr() {
+    function searchCards(query, cards) {
+        const parsed = parse(query || "");
+        return (cards || []).filter((card) => evaluate(card, parsed));
+    }
 
-        let value = parseAnd();
-
-        while (terms[index]?.type === "OR") {
-
-            index++;
-
-            value = value || parseAnd();
-
+    async function searchCardsFromSets(query, setNames = ["bs26"]) {
+        const cards = [];
+        for (const setName of setNames) {
+            cards.push(...(await loadSet(setName)));
         }
-
-        return value;
-
+        return searchCards(query, cards);
     }
 
-    return parseOr();
+    function render(cards) {
+        const resultsDiv = document.getElementById("results");
+        if (!resultsDiv) return;
 
-}
+        resultsDiv.innerHTML = "";
 
-//////////////////////////////////////////////////////////
+        for (const card of cards) {
+            const filename = card.id;
+            const img = `card-images/${filename}.png`;
 
-function render(cards){
-
-    resultsDiv.innerHTML="";
-
-    for(const card of cards){
-
-        const index =
-            Number(card["card number"])-1;
-
-        const filename =
-            card["id"]
-
-        const img =
-            `card-images/${filename}.png`;
-
-        resultsDiv.innerHTML+=`
-
+            resultsDiv.innerHTML += `
 <div class="card">
-
 <img src="${img}" loading="lazy">
-
 <h2>${card.cardname}</h2>
-
 <div class="meta">
-
 ${card.id}<br>
-
 ${card.cardtype}<br>
-
-${card.rarity}
-
+${getRarity(card)}
 </div>
-
 <div class="rules">
-
 ${formatCardText(card.cardtext)}
-
 </div>
-
 </div>
-
 `;
-
+        }
     }
 
-}
+    async function performSearch() {
+        const input = document.getElementById("search");
+        if (!input) return;
 
-//////////////////////////////////////////////////////////
+        const query = input.value.trim();
+        const parsed = parse(query);
 
-async function performSearch(){
+        let sets = [];
+        const setTerms = parsed.filter((term) => term.type === "FIELD" && (term.field === "set" || term.field === "s"));
 
-    const query =
-        document.getElementById("search").value.trim();
+        if (setTerms.length) {
+            sets = [...new Set(setTerms.map((term) => term.value.toLowerCase()))];
+        } else {
+            sets = ["bs26"];
+        }
 
-    const parsed =
-        parse(query);
+        const cards = [];
+        for (const setName of sets) {
+            cards.push(...(await loadSet(setName)));
+        }
 
-    console.log(parsed);
-
-    // Determine which sets need loading.
-    // Eventually you'll use your indexes here.
-    // For now, if no set is specified,
-    // it loads every set listed below.
-
-    let sets=[];
-
-    const setTerms = parsed.filter(
-        t =>
-            t.type === "FIELD" &&
-            (t.field === "set" || t.field === "s")
-    );
-
-    if (setTerms.length) {
-
-        sets = [
-            ...new Set(
-                setTerms.map(t => t.value.toLowerCase())
-            )
-        ];
-
+        render(cards.filter((card) => evaluate(card, parsed)));
     }
 
-    else{
+    const searchInput = document.getElementById("search");
+    const goButton = document.getElementById("go");
 
-        // Add your sets here.
-        sets=[
-            "bs26"
-        ];
-
+    function readSearchFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("q") || params.get("search") || "";
     }
 
-    let cards=[];
+    function initializeSearch() {
+        if (!searchInput) return;
 
-    for(const s of sets){
+        searchInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                performSearch();
+            }
+        });
 
-        cards.push(
-            ...(await loadSet(s))
-        );
+        const initialQuery = readSearchFromUrl();
+        if (initialQuery) {
+            searchInput.value = initialQuery;
+        }
 
+        performSearch();
     }
 
-    cards =
-        cards.filter(c=>
-            evaluate(c,parsed)
-        );
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initializeSearch);
+    } else {
+        initializeSearch();
+    }
 
-    render(cards);
+    if (goButton) {
+        goButton.onclick = performSearch;
+    }
 
-}
+    root.SuperBenjiSearch = {
+        getRarity,
+        formatCardText,
+        loadSet,
+        tokenize,
+        parse,
+        contains,
+        equals,
+        evaluate,
+        searchCards,
+        searchCardsFromSets,
+        render,
+        performSearch
+    };
+})(window);
